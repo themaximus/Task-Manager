@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="ua">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart Board - Wiki & Kanban Board</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+</head>
+<body>
+  <div class="wrapper">
+    <header class="app-header">
+      <div class="logo">📋 Smart Board</div>
+      <div class="header-actions">
+        <label class="switch lang-switcher">
+          <input type="checkbox" class="cb" id="lang-checkbox">
+          <span class="toggle">
+            <span class="left">UA</span>
+            <span class="right">ENG</span>
+          </span>
+        </label>
+      </div>
+    </header>
+
+    <main class="board-app-window">
+      <!-- Project Manager view -->
+      <div id="projectManagerScreen" class="project-manager">
+        <header class="pm-header">
+          <div>
+            <h1 style="color: var(--text-primary);">
+              <span class="lang-ua">Ваші проєкти</span>
+              <span class="lang-en">Your Projects</span>
+            </h1>
+            <p class="pm-subtitle">
+              <span class="lang-ua">Оберіть проєкт для роботи або створіть новий</span>
+              <span class="lang-en">Select a project to work on or create a new one</span>
+            </p>
+          </div>
+          <div class="pm-actions">
+            <input type="text" id="projectSearch" placeholder="🔍 Пошук проєктів..." class="pm-search">
+          </div>
+        </header>
+        <main class="pm-main">
+          <div class="project-grid" id="projectGrid"></div>
+        </main>
+      </div>
+
+      <!-- App Workspace view -->
+      <div id="appWorkspace" style="display: none;">
+        <div class="overlay" id="overlay"></div>
+
+        <div class="sidebar" id="sidebar">
+          <div class="sidebar-header">
+            <button id="btnBackToProjects" title="Back to projects">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+              <span class="lang-ua">Проєкти</span>
+              <span class="lang-en">Projects</span>
+            </button>
+            <h3 id="sidebarProjectTitle">Project Title</h3>
+            <div class="sidebar-header-actions-fixed">
+              <button id="themeToggleBtn" class="btn-icon" title="Toggle theme">🌓</button>
+              <button id="closeSidebarBtn" class="close-sidebar btn-icon" title="Close panel">&times;</button>
+            </div>
+          </div>
+          <div id="sidebarSearchContainer">
+            <input type="text" id="wikiSearchInput" placeholder="Пошук...">
+          </div>
+          <ul id="boardList" class="board-list"></ul>
+          <div class="sidebar-footer">
+            <div class="sidebar-actions">
+              <button id="exportDataBtn" class="btn btn-secondary btn-small" title="Export entire wiki">
+                <span class="lang-ua">💾 Експорт</span>
+                <span class="lang-en">💾 Export</span>
+              </button>
+              <button id="importDataBtn" class="btn btn-secondary btn-small" title="Import from file">
+                <span class="lang-ua">📂 Імпорт</span>
+                <span class="lang-en">📂 Import</span>
+              </button>
+            </div>
+            <input type="text" id="newBoardNameInput" placeholder="Назва нової сторінки...">
+            <button id="addBoardBtn" class="btn btn-primary" style="justify-content: center;">
+              <svg width="18" height="18" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M19 11h-6V5h-2v6H5v2h6v6h2v-6h6z"></path></svg>
+              <span class="lang-ua">Створити</span>
+              <span class="lang-en">Create</span>
+            </button>
+          </div>
+        </div>
+
+        <header>
+          <div class="header-left">
+            <div id="appTitleButton" class="app-title" title="Open wiki structure">
+              <svg width="24" height="24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
+              <span id="currentBoardTitle">Page Title</span>
+            </div>
+          </div>
+          <div class="header-right">
+            <div class="view-switcher" style="display: flex; gap: 0.5rem;">
+              <button id="showDocumentViewBtn" class="btn btn-secondary active" title="Document view">
+                📄 <span>
+                  <span class="lang-ua">Текст</span>
+                  <span class="lang-en">Text</span>
+                </span>
+              </button>
+              <button id="showBoardViewBtn" class="btn btn-secondary" title="Kanban view">
+                📋 <span>
+                  <span class="lang-ua">Канбан</span>
+                  <span class="lang-en">Kanban</span>
+                </span>
+              </button>
+              <button id="showGraphViewBtn" class="btn btn-secondary" title="Graph view" style="display:none;">
+                🕸️ <span>
+                  <span class="lang-ua">Граф</span>
+                  <span class="lang-en">Graph</span>
+                </span>
+              </button>
+            </div>
+            <button id="btnAttachFile" class="btn btn-primary" title="Attach file">
+              📎 <span>
+                <span class="lang-ua">Файл</span>
+                <span class="lang-en">File</span>
+              </span>
+            </button>
+            <button id="addColumnBtn" class="btn btn-primary btn-add-column" style="display:none;">
+              <svg width="18" height="18" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M19 11h-6V5h-2v6H5v2h6v6h2v-6h6z"></path></svg>
+              <span class="lang-ua">Колонка</span>
+              <span class="lang-en">Column</span>
+            </button>
+          </div>
+        </header>
+
+        <main style="flex-grow: 1; display: flex; overflow: hidden; position: relative;">
+          <div id="documentViewContainer" class="document-view">
+            <div class="document-header">
+              <h1 id="docTitle" contenteditable="true">Page Name</h1>
+              <div class="doc-meta">
+                <span class="lang-ua">Останні зміни:</span>
+                <span class="lang-en">Last modified:</span>
+                <span id="docLastModified">-</span>
+              </div>
+            </div>
+            <div id="editorjs"></div>
+          </div>
+          <div id="boardContainer" class="board" style="display:none; width: 100%;"></div>
+          <div id="graphViewContainer" style="display:none; width: 100%; height: 100%;"></div>
+        </main>
+      </div>
+
+      <div id="pdfSidePeek" class="pdf-side-peek">
+        <div class="pdf-side-header">
+          <h3 id="pdfSideTitle" style="margin: 0; font-size: 1.1rem; color: var(--text-primary);">Document.pdf</h3>
+          <button id="pdfSideClose" class="btn-icon" title="Close panel">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+          </button>
+        </div>
+        <iframe id="pdfSideIframe" class="pdf-side-iframe"></iframe>
+      </div>
+    </main>
+  </div>
+
+  <!-- Notion Modals -->
+  <input type="file" id="importFileInput" style="display:none;" accept=".json">
+
+  <div id="mediaModal">
+    <span id="closeModalBtn">&times;</span>
+    <div id="mediaModalContent"></div>
+  </div>
+
+  <div class="custom-modal-overlay" id="customModalOverlay">
+    <div class="custom-modal">
+      <div id="customModalContent" class="custom-modal-content"></div>
+      <div id="customModalButtons" class="custom-modal-buttons"></div>
+    </div>
+  </div>
+  
+  <div id="customDialogOverlay" class="custom-dialog-overlay">
+    <div class="custom-dialog-box">
+      <h3 id="customDialogTitle" class="custom-dialog-title">Заголовок</h3>
+      <p id="customDialogMessage" class="custom-dialog-message">Текст сообщения</p>
+      
+      <div class="custom-dialog-input-wrapper">
+        <input type="text" id="customDialogInput" class="custom-dialog-input" autocomplete="off">
+      </div>
+      
+      <div class="custom-dialog-actions">
+        <button id="customDialogCancelBtn" class="btn btn-secondary">Отмена</button>
+        <button id="customDialogConfirmBtn" class="btn btn-primary">ОК</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Глобальный поиск (Ctrl+K / Cmd+K) -->
+  <div id="globalSearchOverlay" class="global-search-overlay">
+    <div class="global-search-modal">
+      <div class="global-search-header">
+        <input type="text" id="globalSearchInput" placeholder="Search..." autocomplete="off">
+        <span class="search-shortcut">esc</span>
+      </div>
+      <div id="globalSearchResults" class="global-search-results"></div>
+    </div>
+  </div>
+
+  <!-- Dependencies -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <script src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@editorjs/editorjs@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@editorjs/header@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@editorjs/list@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@editorjs/image@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@editorjs/table@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@editorjs/code@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@editorjs/checklist@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@editorjs/link@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@editorjs/inline-code@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/editorjs-toggle-block"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@itech-indrustries/editorjs-callout"></script>
+
+  <script src="main.js"></script>
+</body>
+</html>
